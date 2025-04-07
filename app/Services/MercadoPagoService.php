@@ -12,7 +12,7 @@ class MercadoPagoService
     public function __construct()
     {
         MercadoPagoConfig::setAccessToken(config('mercado_pago.access_token'));
-        MercadoPagoConfig::setRuntimeEnviroment(MercadoPagoConfig::LOCAL);
+        MercadoPagoConfig::setRuntimeEnviroment(MercadoPagoConfig::SERVER);
     }
 
     function createPreferenceRequest($items, $payer): array
