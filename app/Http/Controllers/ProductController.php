@@ -6,8 +6,10 @@ use App\Http\Requests\Products\UpdateProductRequest;
 use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Services\FilterService;
 use App\Services\ProductService;
 use App\Services\ValidationService;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -37,10 +39,6 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        // return response()->json([
-        //     'success' => $request,
-        // ]);
-
         if (!ValidationService::validate($request)) {
             return response()->json([
                 'success' => false,
@@ -122,5 +120,14 @@ class ProductController extends Controller
             'success' => true,
             'message' => 'Product deleted'
         ]);
+    }
+
+    public function filter(Request $request)
+    {
+        if (!($request->name || $request->price || $request->stock)) {
+            return;
+        }
+
+        return FilterService::filterFull($request);
     }
 }

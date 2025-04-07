@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -12,5 +13,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('remove_item', [CartController::class, 'removeItem']);
         Route::get('empty', [CartController::class, 'empty']);
     });
+
+    Route::get('checkout', [CheckoutController::class, 'checkout']);
+    Route::get('checkout_mp', [CheckoutController::class, 'checkoutMp']);
+    // Route::get('checkout_mp', [CheckoutController::class, 'checkoutMp']);
 
 });
