@@ -26,7 +26,12 @@ class CheckoutController extends Controller
         return response()->json(['preference' => $preference]);
     }
 
-    public function receivePay(Request $request) {
-        Log::info($request);
+    public function receivePay(Request $request)
+    {
+        return response()->json(
+            [
+                'payment' => $this->mercadoPagoService->getPayment($request->id)
+            ]
+        );
     }
 }

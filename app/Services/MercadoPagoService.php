@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Exceptions\MPApiException;
 use MercadoPago\MercadoPagoConfig;
@@ -12,7 +13,6 @@ class MercadoPagoService
     public function __construct()
     {
         MercadoPagoConfig::setAccessToken(config('mercado_pago.access_token'));
-        MercadoPagoConfig::setRuntimeEnviroment(MercadoPagoConfig::SERVER);
     }
 
     function createPreferenceRequest($items, $payer): array
@@ -44,14 +44,10 @@ class MercadoPagoService
 
     public function pay($products)
     {
-        // Fill the data about the product(s) being purchased
-
         $items = array();
 
         foreach ($products as $product) {
-            // Mount the array of products that will integrate the purchase amount
             $item = new Item();
-            // $item->id = $product->id;
             $item->title = $product->name;
             $item->description = $product->description;
             $item->currency_id = "ARS";
@@ -60,7 +56,6 @@ class MercadoPagoService
             array_push($items, $item);
         }
 
-        // Retrieve information about the user (use your own function)
         $user = AuthService::getCurrentUser();
 
         $payer = array(
@@ -69,33 +64,28 @@ class MercadoPagoService
             "email" => $user->email,
         );
 
-        // Create the request object to be sent to the API when the preference is created
         $request = $this->createPreferenceRequest($items, $payer);
-        // Instantiate a new Preference Client
         $client = new PreferenceClient();
 
-
-        // dd($items);
-
-
         try {
-            // Send the request that will create the new preference for user's checkout flow
-            // $preference = $client->create($request);
             $preference = $client->create(
-                // $request
-                ["items" => $items]
+                [
+                    "items" => $items,
+                    "notification_url" => config('app.host_url')
+                ]
             );
 
-            // Useful props you could use from this object is 'init_point' (URL to Checkout Pro) or the 'id'
             return $preference;
         } catch (MPApiException $error) {
-            // Here you might return whatever your app needs.
-            // We are returning null here as an example.
             return null;
         }
     }
 
-    public function getPayment() {
-        
+    public function getPayment($id)
+    {
+        $auxPayment = new PaymentClient;
+        $payment = $auxPayment->get($id);
+
+        return $payment;
     }
 }
