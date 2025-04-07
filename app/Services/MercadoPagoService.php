@@ -71,7 +71,7 @@ class MercadoPagoService
             $preference = $client->create(
                 [
                     "items" => $items,
-                    "notification_url" => config('app.host_url')
+                    "notification_url" => config('app.host_url') . '/receive-pay'
                 ]
             );
 
