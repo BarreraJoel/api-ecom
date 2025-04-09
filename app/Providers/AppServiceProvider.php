@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\MercadoPagoService;
+use App\Services\OrderService;
 use App\Services\PaymentService;
 use App\Services\ProductService;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(MercadoPagoService::class, function ($app) {
             return new MercadoPagoService();
         });
+
     }
 
     /**

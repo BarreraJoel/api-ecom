@@ -42,7 +42,7 @@ class MercadoPagoService
         return $request;
     }
 
-    public function pay($products)
+    public function pay($products, $orderId)
     {
         $items = array();
 
@@ -71,6 +71,7 @@ class MercadoPagoService
             $preference = $client->create(
                 [
                     "items" => $items,
+                    "external_reference" => $orderId,
                     "notification_url" => config('app.host_url') . '/receive-pay'
                 ]
             );

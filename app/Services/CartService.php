@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\ItemCart;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class CartService
 {
-    public function __construct() {}
+    public function __construct(private ProductService $productService) {}
 
     public function getAll()
     {
@@ -18,15 +19,23 @@ class CartService
         return $user->products;
     }
 
-    public function add(ItemCart $itemCart)
+    public function add(Request $request)
     {
+        
         $user =  AuthService::getCurrentUser();
         if (!isset($user)) {
             return null;
         }
-
+        
+        $itemCart = $this->createItem($request);
         $modeluser = User::find($user->id);
-        $modeluser->products()->attach((int)$itemCart->item_id, ['quantity' => (int)$itemCart->quantity]);
+        $modeluser->products()->attach(
+            $itemCart->item_id,
+            [
+                'quantity' => $itemCart->quantity,
+                'price_unit' => $itemCart->price_unit,
+            ]
+        );
         return true;
     }
 
@@ -43,7 +52,8 @@ class CartService
         return true;
     }
 
-    public function clean() {
+    public function clean()
+    {
         $user =  AuthService::getCurrentUser();
         if (!isset($user)) {
             return null;
@@ -54,8 +64,14 @@ class CartService
         return true;
     }
 
-    public function getOrder() {
-        
+    private function createItem(Request $request)
+    {
+        $product = $this->productService->get($request->item_id);
+        return new ItemCart([
+            'item_id' =>  (int)$request->item_id,
+            'quantity' =>  (int)$request->quantity,
+            'price_unit' => $product->price
+        ]);
     }
 
 }

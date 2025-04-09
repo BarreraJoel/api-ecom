@@ -19,7 +19,7 @@ class CartController extends Controller
 
     public function addItem(Request $request)
     {
-        if (!$this->cartService->add(new ItemCart($request->all()))) {
+        if (!$this->cartService->add($request)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error'

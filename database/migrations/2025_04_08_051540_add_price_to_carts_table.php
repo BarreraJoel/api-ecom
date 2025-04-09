@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->enum('status', config('orders.status'))->default('pending');
-            $table->decimal('amount');
-            $table->timestamps();
+        Schema::table('carts', function (Blueprint $table) {
+            $table->decimal('price_unit')->default(0);
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::table('carts', function (Blueprint $table) {
+            $table->dropColumn('price_unit');
+        });
     }
 };

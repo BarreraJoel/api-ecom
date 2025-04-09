@@ -8,6 +8,7 @@ class ItemCart extends Model
 {
     protected $fillable =  [
         'item_id',
-        'quantity'
+        'quantity',
+        'price_unit',
     ];
 }

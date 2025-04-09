@@ -1,6 +1,5 @@
 <?php
 
 return [
-    'status' => ['Processing', 'Success', 'Canceled'],
-    'payment_status' => ['Pending', 'Paid'],
+    'status' => ['pending', 'approved', 'rejected', 'cancelled'],
 ];

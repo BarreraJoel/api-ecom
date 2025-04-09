@@ -16,7 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('checkout', [CheckoutController::class, 'checkout']);
     Route::get('checkout_mp', [CheckoutController::class, 'checkoutMp']);
-    
+
 });
 
 Route::post('receive-pay', [CheckoutController::class, 'receivePay']);

@@ -30,10 +30,9 @@ class ProductService
     {
         return new ProductResource($product);
     }
-
-    public static function get($request, bool $withResource = false)
+    public static function get($id, bool $withResource = false)
     {
-        $product = Product::find($request->id)->first();
+        $product = Product::find($id);
         if (!isset($product)) {
             return null;
         }
