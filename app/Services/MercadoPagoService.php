@@ -52,7 +52,7 @@ class MercadoPagoService
             $item->description = $product->description;
             $item->currency_id = "ARS";
             $item->quantity = $product->pivot->quantity;
-            $item->unit_price = $product->price;
+            $item->unit_price = $product->pivot->price_unit;
             array_push($items, $item);
         }
 

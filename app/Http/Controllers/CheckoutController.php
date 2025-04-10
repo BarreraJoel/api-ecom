@@ -30,7 +30,7 @@ class CheckoutController extends Controller
     public function receivePay(Request $request)
     {
         $payment = $this->mercadoPagoService->getPayment($request->id);
-        $idOrder = (int)$payment->external_reference;
+        $idOrder = $payment->external_reference;
         $order = $this->orderService->getOrder($idOrder);
         $order->status = $payment->status;
         $order->save();
