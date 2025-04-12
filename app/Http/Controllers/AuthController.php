@@ -10,10 +10,14 @@ use App\Services\AuthService;
 use Illuminate\Support\Facades\Hash;
 use App\Services\ValidationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    /**
+     * Registra un nuevo usuario
+     * @param \App\Http\Requests\Auth\RegisterUserRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse Respuesta
+     */
     public function register(RegisterUserRequest $request)
     {
         $user = new User($request->except('password'));

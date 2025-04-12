@@ -10,7 +10,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('items', [CartController::class, 'listItems']);
         Route::post('add_item', [CartController::class, 'addItem']);
-        Route::post('remove_item', [CartController::class, 'removeItem']);
+        Route::delete('remove_item', [CartController::class, 'removeItem']);
         Route::get('empty', [CartController::class, 'empty']);
     });
 
@@ -19,4 +19,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 });
 
-Route::post('receive-pay', [CheckoutController::class, 'receivePay']);
+Route::post('receive_pay', [CheckoutController::class, 'receivePay']);
