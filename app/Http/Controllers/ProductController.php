@@ -66,8 +66,6 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        // dd( asset('storage'). '/' . $product->image_url);
-
         try {
             return response()->json([
                 'product' => $product ? ProductService::toResource($product) : null

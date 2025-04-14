@@ -52,7 +52,7 @@ class MercadoPagoService
             $item->description = $product->description;
             $item->currency_id = "ARS";
             if($product->image_url) {
-                $item->picture_url = asset('storage/' . $product->image_url);
+                $item->picture_url = asset('storage' . '/' . $product->image_url);
             }
             $item->quantity = $product->pivot->quantity;
             $item->unit_price = $product->pivot->price_unit;
