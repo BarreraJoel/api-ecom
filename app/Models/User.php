@@ -3,8 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Services\FileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
@@ -54,4 +57,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Product::class, 'carts')
             ->withPivot(['quantity', 'price_unit']);
     }
+
+    public function updateImage(UploadedFile $file)
+    {
+        $fileService = new FileService();
+        $filename = $fileService->generateFileName($this->id);
+        $path = $fileService->upload($file, '/users/images', $filename);
+        $this->image_url = $path;
+        return $this->save();
+    }
+    
 }

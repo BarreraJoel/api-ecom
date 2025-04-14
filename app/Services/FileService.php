@@ -3,14 +3,20 @@
 namespace App\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class FileService
 {
     public function __construct() {}
 
-    public static function upload(UploadedFile $file, string $path, string $name)
+    public function upload(UploadedFile $file, string $path, string $name)
     {
         return $file->storeAs($path, $name, 'public');
+    }
+
+    public function removeImage(string $path)
+    {
+        return Storage::disk('public')->delete($path);
     }
 
     public function generateFileName($id)

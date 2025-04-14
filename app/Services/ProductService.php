@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Requests\Products\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 
@@ -30,7 +31,7 @@ class ProductService
     {
         return new ProductResource($product);
     }
-    
+
     public static function get($id, bool $withResource = false)
     {
         $product = Product::find($id);
@@ -46,7 +47,7 @@ class ProductService
         $product = Product::create($request->has('image') ? $request->except('image') : $request->all());
         if ($request->has('image')) {
             ProductService::uploadImage($request->file('image'), $product);
-        } 
+        }
 
         if (!isset($product)) {
             return null;
@@ -66,20 +67,36 @@ class ProductService
 
     public static function delete(Product $product)
     {
+        if ($product->image_url) {
+            $fileService = new FileService();
+            $fileService->removeImage($product->image_url);
+        }
+        
         return $product->delete();
     }
 
-    public static function update($request, Product $product)
+    public static function update(UpdateProductRequest $request, Product $product)
     {
-        $updated = false;
-
         try {
-            $product->update($request->all());
-            $updated = true;
+            $except = ['_method'];
+
+            if ($request->hasFile('image')) {
+                array_push($except, 'image');
+                $fileService = new FileService();
+                if ($product->image_url) {
+                    $fileService->removeImage($product->image_url);
+                }
+                $filename = $fileService->generateFileName($product->id);
+                $path = $fileService->upload($request->file('image'), 'products/images', $filename);
+                $product->image_url = $path;
+            }
+
+            $product->fill(($request->except($except)));
+            $product->update();
+
+            return true;
         } catch (\Throwable $th) {
-            $updated = false;
-        } finally {
-            return $updated;
+            return false;
         }
     }
 }

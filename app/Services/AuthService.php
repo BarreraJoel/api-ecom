@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -28,19 +29,17 @@ class AuthService
      * @param mixed $request
      * @return bool
      */
-    public function register($request)
+    public function register(RegisterUserRequest $request)
     {
-        $fileService = new FileService();
         $user = new User($request->except('password'));
         $user->password = Hash::make($request->password);
-        if ($request->has('image_url')) {
-            $user->save();
-            $filename = $fileService->generateFileName($user->id);
-            $path = $fileService->upload($request->file('image_url'), '/users/images', $filename);
-            $user->image_url = $path;
-            return $user->save();
+        $registered = $user->save();
+
+        if ($request->hasFile('image')) {
+            $registered = $user->updateImage($request->file('image'));
         }
-        return $user->save();
+
+        return $registered;
     }
 
     public static function getCurrentUser()
