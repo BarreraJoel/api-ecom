@@ -30,6 +30,7 @@ class ProductService
     {
         return new ProductResource($product);
     }
+    
     public static function get($id, bool $withResource = false)
     {
         $product = Product::find($id);
@@ -42,7 +43,10 @@ class ProductService
 
     public static function add($request)
     {
-        $product = Product::create($request->all());
+        $product = Product::create($request->has('image') ? $request->except('image') : $request->all());
+        if ($request->has('image')) {
+            ProductService::uploadImage($request->file('image'), $product);
+        } 
 
         if (!isset($product)) {
             return null;
@@ -51,7 +55,17 @@ class ProductService
         return $product;
     }
 
-    public static function delete(Product $product) {
+    private static function uploadImage($file, $product)
+    {
+        $fileService = new FileService();
+        $filename = $fileService->generateFileName($product->id);
+        $path = $fileService->upload($file, '/products/images', $filename);
+        $product->image_url = $path;
+        return $product->save();
+    }
+
+    public static function delete(Product $product)
+    {
         return $product->delete();
     }
 
@@ -63,12 +77,9 @@ class ProductService
             $product->update($request->all());
             $updated = true;
         } catch (\Throwable $th) {
-            $updated = false;   
-        }
-        finally{
+            $updated = false;
+        } finally {
             return $updated;
-
         }
-
     }
 }

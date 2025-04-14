@@ -10,14 +10,25 @@ use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
 {
+    
     public function __construct(private PaymentService $paymentService, private MercadoPagoService $mercadoPagoService, private CartService $cartService, private OrderService $orderService) {}
 
+    /**
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function checkout(Request $request)
     {
         $session = $this->paymentService->pay();
         return response()->json(['url' => $session->url]);
     }
 
+    /**
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function checkoutMp(Request $request)
     {
         $products = $this->cartService->getAll();
@@ -27,6 +38,11 @@ class CheckoutController extends Controller
         return response()->json(['preference' => $preference]);
     }
 
+    /**
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function receivePay(Request $request)
     {
         $payment = $this->mercadoPagoService->getPayment($request->id);
@@ -37,7 +53,7 @@ class CheckoutController extends Controller
 
         return response()->json(
             [
-                'message' => 'Payment received'
+                'message' => 'Pago recibido'
             ]
         );
     }

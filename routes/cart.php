@@ -10,7 +10,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('items', [CartController::class, 'listItems']);
         Route::post('add_item', [CartController::class, 'addItem']);
-        Route::delete('remove_item', [CartController::class, 'removeItem']);
+        Route::post('remove_item', [CartController::class, 'removeItem']);
         Route::get('empty', [CartController::class, 'empty']);
     });
 

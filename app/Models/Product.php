@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'name','description','price','stock'
+        'name',
+        'description',
+        'image_url',
+        'price',
+        'stock'
     ];
 
-    public function users() {
+    public function users()
+    {
         return $this->belongsToMany(User::class, 'carts');
     }
 }

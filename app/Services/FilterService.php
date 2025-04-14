@@ -11,7 +11,7 @@ class FilterService
 {
     public function __construct() {}
 
-    public static function filterFull(Request $request)
+    public static function filter(Request $request)
     {
         $query = Product::query();
 

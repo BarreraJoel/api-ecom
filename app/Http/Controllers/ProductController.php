@@ -9,7 +9,10 @@ use App\Models\Product;
 use App\Services\FilterService;
 use App\Services\ProductService;
 use App\Services\ValidationService;
+use Exception;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -32,102 +35,116 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * 
-     * @param \App\Http\Requests\Products\StoreProductRequest $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
     public function store(StoreProductRequest $request)
     {
-        if (!ValidationService::validate($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid data'
-            ]);
-        }
+        try {
+            if (!ValidationService::validate($request)) {
+                throw new BadRequestException('Data invalida', Response::HTTP_BAD_REQUEST);
+            }
 
-        $newProduct = ProductService::add($request);
-        if (!$newProduct) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not stored'
-            ]);
-        }
+            $newProduct = ProductService::add($request);
+            if (!$newProduct) {
+                throw new Exception('Hubo un error al agregar el producto', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product stored',
-            'product' => new ProductResource($newProduct)
-        ]);
+            return response()->json([
+                'message' => 'Producto agregado',
+                'product' => new ProductResource($newProduct)
+            ], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], $th->getCode());
+        }
     }
 
     /**
-     * Summary of show
+     * 
      * @param \App\Models\Product $product
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function show(Product $product)
     {
-        return response()->json([
-            'product' => $product ? ProductService::toResource($product) : null
-        ]);
+        // dd( asset('storage'). '/' . $product->image_url);
+
+        try {
+            return response()->json([
+                'product' => $product ? ProductService::toResource($product) : null
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], $th->getCode());
+        }
     }
 
     /**
-     * Summary of update
+     * 
      * @param \App\Http\Requests\Products\UpdateProductRequest $request
      * @param \App\Models\Product $product
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        if (!ValidationService::validate($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid data'
-            ]);
-        }
+        try {
+            if (!ValidationService::validate($request)) {
+                throw new BadRequestException('Data invalida', Response::HTTP_BAD_REQUEST);
+            }
 
-        if (!ProductService::update($request, $product)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not updated'
-            ]);
-        }
+            if (!ProductService::update($request, $product)) {
+                throw new Exception('Hubo un error al actualizar el producto', Response::HTTP_NOT_MODIFIED);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product updated',
-            'product' => new ProductResource($product)
-        ]);
+            return response()->json([
+                'message' => 'Producto actualizado',
+                'product' => new ProductResource($product)
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], $th->getCode());
+        }
     }
 
     /**
-     * Summary of destroy
+     * 
      * @param \App\Models\Product $product
      * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function destroy(Product $product)
     {
-        if (!ProductService::delete($product)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not deleted'
-            ]);
-        }
+        try {
+            if (!ProductService::delete($product)) {
+                throw new Exception('Producto eliminado', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product deleted'
-        ]);
+            return response()->json([], Response::HTTP_NO_CONTENT);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage(),
+            ], $th->getCode());
+        }
     }
 
+    /**
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Database\Eloquent\Collection<int, Product>
+     */
     public function filter(Request $request)
     {
-        if (!($request->name || $request->price || $request->stock)) {
-            return;
-        }
+        try {
 
-        return FilterService::filterFull($request);
+            if (!($request->name || $request->price || $request->stock)) {
+                throw new BadRequestException('Se requiere de algún campo', Response::HTTP_BAD_REQUEST);
+            }
+            return FilterService::filter($request);
+        } catch (\Throwable $th) {
+
+            return response()->json([
+                'message' => $th->getMessage()
+            ], $th->getCode());
+        }
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Services\MercadoPagoService;
-use App\Services\OrderService;
 use App\Services\PaymentService;
 use App\Services\ProductService;
 use Illuminate\Support\ServiceProvider;
