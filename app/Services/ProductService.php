@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -42,10 +43,18 @@ class ProductService
         return $withResource ? ProductService::toResource($product) : $product;
     }
 
-    public static function add($request)
+    public static function add(StoreProductRequest $request)
     {
-        $product = Product::create($request->has('image') ? $request->except('image') : $request->all());
-        if ($request->has('image')) {
+        $except = ['category_id'];
+        if ($request->hasFile('image')) {
+            array_push($except, 'image');
+        }
+        
+        $product = new Product($request->except($except));
+        $product->category_id = (int)$request->category_id;
+        $product->save();
+
+        if ($request->hasFile('image')) {
             ProductService::uploadImage($request->file('image'), $product);
         }
 
@@ -71,7 +80,7 @@ class ProductService
             $fileService = new FileService();
             $fileService->removeImage($product->image_url);
         }
-        
+
         return $product->delete();
     }
 
