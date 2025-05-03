@@ -2,17 +2,24 @@
 
 namespace App\Services;
 
+use App\Classes\ApiResponse;
+use App\Models\Product;
 use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Exceptions\MPApiException;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Resources\Preference\Item;
+use stdClass;
+use Symfony\Component\HttpFoundation\Response;
 
 class MercadoPagoService
 {
+    private AuthService $authService;
+
     public function __construct()
     {
         MercadoPagoConfig::setAccessToken(config('mercado_pago.access_token'));
+        $this->authService = new AuthService();
     }
 
     function createPreferenceRequest($items, $payer): array
@@ -42,43 +49,57 @@ class MercadoPagoService
         return $request;
     }
 
-    public function pay($products, $orderId)
+    private function generateArrayItems($products)
     {
         $items = array();
 
         foreach ($products as $product) {
-            $item = new Item();
-            $item->title = $product->name;
-            $item->description = $product->description;
+            $modelProduct = Product::find($product->product_id);
+            $item = new Item;
+            $item->id = $modelProduct->id;
+            $item->title = $modelProduct->name;
+            $item->description = $modelProduct->description;
             $item->currency_id = "ARS";
-            $item->quantity = $product->pivot->quantity;
-            $item->unit_price = $product->pivot->price_unit;
+            $item->quantity = $product->quantity;
+            $item->unit_price = $product->unit_price;
             array_push($items, $item);
         }
 
-        $user = AuthService::getCurrentUser();
+        return $items;
+    }
 
-        $payer = array(
-            "name" => $user->name,
-            "surname" => 'velez',
-            "email" => $user->email,
-        );
-
-        $request = $this->createPreferenceRequest($items, $payer);
-        $client = new PreferenceClient();
-
+    public function createPreference($products, $orderId)
+    {
         try {
+            $items = $this->generateArrayItems($products);
+            $user = $this->authService->getCurrentUser();
+
+            $payer = array(
+                "name" => $user->name,
+                "surname" => $user->lastname,
+                "email" => $user->email,
+            );
+
+            // $request = $this->createPreferenceRequest($items, $payer);
+            $client = new PreferenceClient();
+
             $preference = $client->create(
                 [
                     "items" => $items,
+                    "payer" => $payer,
                     "external_reference" => $orderId,
-                    "notification_url" => config('app.host_url') . '/receive-pay'
+                    "notification_url" => config('app.host_url') . '/api/receive-pay'
                 ]
             );
 
             return $preference;
         } catch (MPApiException $error) {
-            return null;
+            return ApiResponse::response(
+                false,
+                'Hubo un error con Mercado Pago',
+                null,
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
         }
     }
 

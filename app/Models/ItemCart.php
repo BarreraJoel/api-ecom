@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class ItemCart extends Model
 {
     protected $fillable =  [
-        'item_id',
+        'user_id',
+        'product_id',
         'quantity',
-        'price_unit',
+        'unit_price'
     ];
+    
 }

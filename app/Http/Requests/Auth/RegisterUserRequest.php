@@ -23,9 +23,11 @@ class RegisterUserRequest extends FormRequest
     {
         return [
             'name' => 'required|min:3',
+            'lastname' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'image_url' => 'image',
+            'password' => 'required|min:8|confirmed',
+            'image' => 'image',
+            'role_id' => 'required|exists:roles,id'
         ];
     }
 }

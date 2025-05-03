@@ -5,7 +5,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::apiResource('products', ProductController::class);
-    Route::get('filter', [ProductController::class, 'filter']);
+    Route::get('products/filter', [ProductController::class, 'filter']);
     
+    Route::apiResource('products', ProductController::class)
+        ->only(['index', 'show']);
+        
+    Route::apiResource('products', ProductController::class)
+        ->except(['index', 'show'])
+        ->middleware('is_admin');
+
 });

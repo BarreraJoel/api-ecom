@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Policies\UserPolicy;
 use App\Services\MercadoPagoService;
 use App\Services\PaymentService;
 use App\Services\ProductService;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +35,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gates::define();
     }
 }

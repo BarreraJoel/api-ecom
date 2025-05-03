@@ -6,19 +6,20 @@ use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class ProductService
 {
     public function __construct() {}
 
-    public static function getAll(bool $withResource = false)
-    {
-        return $withResource ? ProductService::getAllWithResource() : Product::all();
-    }
-
-    private static function getAllWithResource()
+    public static function getAll(bool $resource = false)
     {
         $products = Product::all();
+
+        if(!$resource) {
+            return $products;
+        }
+
         $productsWithResource = [];
 
         foreach ($products as $product) {
@@ -108,4 +109,18 @@ class ProductService
             return false;
         }
     }
+
+    public static function filter(Request $request)
+    {
+        $filterService = new FilterService();
+        $products = $filterService->filterProduct($request);
+
+        $productsWithResource = [];
+        foreach ($products as $product) {
+            array_push($productsWithResource, ProductService::toResource($product));
+        }
+
+        return $productsWithResource;
+    }
+
 }

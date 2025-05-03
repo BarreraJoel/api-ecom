@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ApiResponse;
+use App\Http\Requests\ItemPivotRequest;
+use App\Http\Requests\UpdateItemRequest;
 use App\Services\CartService;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CartController extends Controller
 {
@@ -16,86 +22,116 @@ class CartController extends Controller
     public function __construct(private CartService $cartService) {}
 
     /**
-     * 
+     * Lista todos los items del carrito
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function listItems()
+    public function index()
     {
-        return response()->json([
-            'cart' => $this->cartService->getAll()
-        ]);
+        return ApiResponse::response(
+            true,
+            null,
+            [
+                'cart' => $this->cartService->getAll()
+            ]
+        );
     }
 
     /**
-     * 
-     * @param \Illuminate\Http\Request $request
+     * Agrega un item al carrito
+     * @param \App\Http\Requests\ItemPivotRequest $request
+     * @throws \Symfony\Component\HttpFoundation\Exception\BadRequestException Si el item ya existe en el carrito
+     * @throws \Exception Si no se pudo agregar
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function addItem(Request $request)
+    public function store(ItemPivotRequest $request)
     {
-        try {
+        $this->cartService->validateRequest($request, $request->product_id);
 
-            if (!$this->cartService->add($request)) {
-                throw new Exception('Hubo un error al agregar el ítem', Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-
-            return response()->json([
-                'message' => 'Item agregado'
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], $th->getCode());
+        if ($this->cartService->itemExists($request->product_id)) {
+            throw new BadRequestException('El item ya existe en el carrito');
         }
-    }
 
-    /**
-     * 
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|\Illuminate\Http\JsonResponse
-     */
-    public function removeItem(Request $request)
-    {
-        try {
-            
-            if (!$this->cartService->remove($request->item_id)) {
-                throw new Exception('Hubo un error al eliminar el ítem', Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-
-            return response()->json([
-                'message' => 'Item eliminado'
-            ]);
-            
-        } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], $th->getCode());
+        if (!$this->cartService->add($request)) {
+            throw new Exception('Hubo un error al agregar el ítem');
         }
+
+        return ApiResponse::response(
+            true,
+            'Item agregado',
+            null,
+            Response::HTTP_CREATED
+        );
     }
 
     /**
      * 
-     * @param \Illuminate\Http\Request $request
+     * @param \App\Http\Requests\UpdateItemRequest $request
+     * @param int $id
+     * @throws \Symfony\Component\HttpFoundation\Exception\BadRequestException
+     * @throws \Exception
      * @return mixed|\Illuminate\Http\JsonResponse
      */
-    public function empty(Request $request)
+    public function update(UpdateItemRequest $request, int $id)
     {
-        try {
+        $this->cartService->validateRequest($request, $id);
 
-            if (!$this->cartService->clean()) {
-                throw new Exception('Hubo un error al eliminar los ítems', Response::HTTP_INTERNAL_SERVER_ERROR);
-            }
-
-            return response()->json([
-                'message' => 'Carrito vacío'
-            ]);
-
-        } catch (\Throwable $th) {
-
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], $th->getCode());
+        if (!$this->cartService->itemExists($id)) {
+            throw new ModelNotFoundException('Producto no encontrado en el carrito');
+        }
         
+        if (!$this->cartService->update($request->quantity, $id)) {
+            throw new Exception('Hubo un error al agregar el ítem');
         }
+
+        return ApiResponse::response(
+            true,
+            'Item actualizado'
+        );
+    }
+
+    /**
+     * Elimina un item del carrito
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @throws \Symfony\Component\HttpFoundation\Exception\BadRequestException
+     * @throws \Exception Si no se pudo eliminar
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function destroy(int $id)
+    {
+        if (!$this->cartService->itemExists($id)) {
+            throw new BadRequestException('El item no existe');
+        }
+
+        if (!$this->cartService->remove($id)) {
+            throw new Exception('Hubo un error al eliminar el ítem');
+        }
+
+        return ApiResponse::response(
+            true,
+            null,
+            null,
+            Response::HTTP_NO_CONTENT
+        );
+    }
+
+    /**
+     * Elimina todos los items del carrito
+     * @param \Illuminate\Http\Request $request
+     * @throws \Exception Si no se pudo vaciar
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function destroy_all(Request $request)
+    {
+        if (!$this->cartService->clean()) {
+            throw new Exception('Hubo un error al eliminar los ítems');
+        }
+
+        return ApiResponse::response(
+            true,
+            null,
+            null,
+            Response::HTTP_NO_CONTENT
+        );
     }
 }

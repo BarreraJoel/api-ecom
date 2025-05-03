@@ -22,8 +22,8 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|alpha|min:2',
-            'description' => 'required|min:1',
+            'name' => 'required|regex:/^[\pL\s\-]+$/u|min:2',
+            'description' => 'required|regex:/^[\pL\s\-]+$/u|min:1',
             'image' => 'image',
             'price' => 'required|numeric|decimal:0,2',
             'stock' => 'required|integer|min:1',

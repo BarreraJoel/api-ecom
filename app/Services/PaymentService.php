@@ -8,16 +8,18 @@ use Stripe\Stripe;
 
 class PaymentService
 {
+    private AuthService $authService;
+
     public function __construct()
     {
+        $this->authService = new AuthService();
         Stripe::setApiKey(config('services.stripe.secret'));
     }
 
     public function pay()
     {
-        $user = AuthService::getCurrentUser();
+        $user = $this->authService->getCurrentUser();
         $modelUser = User::find($user->id);
-
         $listItems = [];
 
         foreach ($modelUser->products as $product) {

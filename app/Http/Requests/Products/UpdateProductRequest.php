@@ -25,9 +25,10 @@ class UpdateProductRequest extends FormRequest
             '_method' => 'required',
             'name' => 'regex:/^[\pL\s\-]+$/u|min:2',
             'description' => 'regex:/^[\pL\s\.\-]+$/u|min:1',
+            'image' => 'image',
             'price' => 'numeric|decimal:0,2',
             'stock' => 'integer|min:1',
-            'image' => 'image'
+            'category_id' => 'exists:categories,id'
         ];
     }
 }

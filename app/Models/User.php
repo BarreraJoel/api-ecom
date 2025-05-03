@@ -2,20 +2,18 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
+use App\Http\Resources\UserResource;
 use App\Services\FileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable, Billable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -24,9 +22,11 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'lastname',
         'email',
         'password',
         'image_url',
+        'role_id',
     ];
 
     /**
@@ -52,10 +52,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function products()
-    {
-        return $this->belongsToMany(Product::class, 'carts')
-            ->withPivot(['quantity', 'price_unit']);
+    public function toResource() {
+        return new UserResource($this);
     }
 
     public function updateImage(UploadedFile $file)
@@ -66,5 +64,15 @@ class User extends Authenticatable
         $this->image_url = $path;
         return $this->save();
     }
-    
+
+    public function roles()
+    {
+        return $this->hasOne(Role::class);
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'carts')
+            ->withPivot(['quantity', 'unit_price']);
+    }
 }
