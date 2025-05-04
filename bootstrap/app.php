@@ -1,5 +1,6 @@
 <?php
 
+use App\ExceptionHandler;
 use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,5 +20,5 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->renderable([ExceptionHandler::class, 'handle']);
     })->create();
