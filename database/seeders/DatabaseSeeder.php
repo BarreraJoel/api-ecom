@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Tecnología'
         ]);
         Category::create([
-            'name' => 'Limpieza'
+            'name' => 'Vestimenta'
         ]);
 
         Role::create( [

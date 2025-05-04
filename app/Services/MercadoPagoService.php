@@ -88,7 +88,7 @@ class MercadoPagoService
                     "items" => $items,
                     "payer" => $payer,
                     "external_reference" => $orderId,
-                    "notification_url" => config('app.host_url') . '/api/receive-pay'
+                    "notification_url" => config('app.host_url') . '/api/receive_pay'
                 ]
             );
 
