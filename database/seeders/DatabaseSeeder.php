@@ -3,8 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,19 +13,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('12345678'),
-        ]);
-        User::create([
-            'name' => 'Test User 2',
-            'email' => 'test2@example.com',
-            'password' => bcrypt('12345678'),
-        ]);
-
         Category::create([
             'name' => 'Alimentos'
         ]);
@@ -36,5 +22,14 @@ class DatabaseSeeder extends Seeder
         Category::create([
             'name' => 'Limpieza'
         ]);
+
+        Role::create( [
+            'name' => 'administrador'
+        ]);
+
+        Role::create( [
+            'name' => 'cliente'
+        ]);
+
     }
 }
