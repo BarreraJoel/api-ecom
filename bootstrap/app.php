@@ -1,6 +1,6 @@
 <?php
 
-use App\ExceptionHandler;
+use App\Classes\ExceptionHandler;
 use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;

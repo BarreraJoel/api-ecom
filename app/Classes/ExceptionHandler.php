@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Classes;
 
 use App\Classes\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;

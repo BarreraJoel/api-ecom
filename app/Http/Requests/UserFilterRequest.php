@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Classes\FormRequestValidationHandler;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserFilterRequest extends FormRequest
+class UserFilterRequest extends FormRequestValidationHandler
 {
     /**
      * Determine if the user is authorized to make this request.

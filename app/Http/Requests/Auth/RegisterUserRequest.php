@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Classes\FormRequestValidationHandler;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterUserRequest extends FormRequest
+class RegisterUserRequest extends FormRequestValidationHandler
 {
     /**
      * Determine if the user is authorized to make this request.
